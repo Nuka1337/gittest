@@ -27,7 +27,7 @@ public class TestGit {
 
     @BeforeClass
     public static void auth() {
-        RestAssured.authentication = RestAssured.oauth2("9acadfa5935ee9d3ca90eaa831493c3d93b368ab");
+        RestAssured.authentication = RestAssured.oauth2("eb04b6c67ee0384a162fadc58e80b44a34bd57f9");
         int code = RestAssured.
                 given().
                 when().
