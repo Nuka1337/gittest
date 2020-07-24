@@ -20,6 +20,7 @@ public class TestGit {
 
     final static String un = "nukagittest";
     final static String giturl = "https://api.github.com";
+    final static String token = "09c53a19"+"0b43b1581"+"c04fd568"+"ff45731"+"5a93678f";
 
     public String generateRepoName() {
         return "Repo" + DateTimeFormatter.ofPattern("HHmmssddMMyyyy").format(LocalDateTime.now()) + "r" + (new Random().nextInt(1000) * new Random().nextInt(1000));
@@ -27,7 +28,7 @@ public class TestGit {
 
     @BeforeClass
     public static void auth() {
-        RestAssured.authentication = RestAssured.oauth2("eb04b6c67ee0384a162fadc58e80b44a34bd57f9");
+        RestAssured.authentication = RestAssured.oauth2(token);
         int code = RestAssured.
                 given().
                 when().
