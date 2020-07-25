@@ -4,10 +4,7 @@ import io.restassured.RestAssured;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
-import io.restassured.config.HttpClientConfig;
-import io.restassured.config.RestAssuredConfig;
 import io.restassured.response.Response;
-import org.apache.http.params.CoreConnectionPNames;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -24,7 +21,7 @@ public class TestGit {
     final static String un = "nukagittest";
     final static String giturl = "https://api.github.com";
 
-    final static String token = "placeCorectOneFrom"; //Нужно поменять на актуальный из письма
+    final static String token = "putCorrectTokenHere"; //Нужно поменять на актуальный из письма
 
     public String generateRepoName() {
         return "Repo" + DateTimeFormatter.ofPattern("HHmmssddMMyyyy").format(LocalDateTime.now()) + "r" + (new Random().nextInt(1000) * new Random().nextInt(1000));
@@ -38,7 +35,7 @@ public class TestGit {
                 when().
                 get(giturl+"/user").
                 getStatusCode();
-         assertTrue("Status not OK", code == 200);
+        assertEquals("Status not OK", 200, code);
     }
 
     //Получение списка репозиториев
@@ -49,7 +46,7 @@ public class TestGit {
                 when().
                 get(giturl+"/user/repos").
                 getStatusCode();
-        assertTrue("Status not OK 200", code == 200);
+        assertEquals("Status not OK 200", 200, code);
     }
 
     //Получение списка репозиториев с неккоректными параметрами запроса
@@ -60,7 +57,7 @@ public class TestGit {
                 when().
                 get(giturl+"/user/repos?visibility=private&type=private").
                 getStatusCode();
-        assertTrue("Not an unprocessable entry", code == 422);
+        assertEquals("Not an unprocessable entry", 422, code);
     }
 
     //Создание репозитория
@@ -76,7 +73,7 @@ public class TestGit {
                 body(jsonparams).
                 post(giturl+"/user/repos").
                 getStatusCode();
-        assertTrue("Status not Created 201", code == 201);
+        assertEquals("Status not Created 201", 201, code);
     }
 
     //Создание репозитория с ошибкой
@@ -96,29 +93,37 @@ public class TestGit {
     //Удаление репозитория
     @Test
     public void test5() {
-        RestAssuredConfig newConfig = RestAssured.config()
-                .httpClient(HttpClientConfig.httpClientConfig()
-                        .setParam(CoreConnectionPNames.CONNECTION_TIMEOUT, 1000));
         String reponame = generateRepoName();
         Map<String, String> jsonparams = new HashMap<>();
         jsonparams.put("name", reponame);
         int code = RestAssured.
                 given().
-                config(newConfig).
                 contentType("application/json").
                 accept("application/json").
                 when().
                 body(jsonparams).
                 post(giturl+"/user/repos").
                 getStatusCode();
-        assertTrue("Repo not created", code == 201);
-        int code2 = RestAssured.
+        assertEquals("Repo not created", 201, code);
+        Response response = RestAssured.
                 given().
-                config(newConfig).
                 when().
-                delete(giturl+"/repos/"+un+"/"+reponame).
-                getStatusCode();
-        assertTrue("Repo not deleted", code2 == 204);
+                get(giturl+"/user/repos").
+                then().
+                statusCode(200).
+                contentType("application/json").
+                extract().
+                response();
+        List<String> list = response.jsonPath().getList("name");
+        if (list.contains(reponame)) {
+            int code2 = RestAssured.
+                    given().
+                    delete(giturl+"/repos/"+un+"/"+reponame).
+                    getStatusCode();
+            assertEquals("Repo not deleted", 204, code2);
+        } else {
+            fail("Repo not created");
+        }
     }
 
     //Удаление несуществующего репозитория
@@ -129,7 +134,7 @@ public class TestGit {
                 when().
                 delete(giturl+"/repos/"+un+"/nukadsjdnwjas122c").
                 getStatusCode();
-        assertTrue("Repo deleted", code == 404);
+        assertEquals("Repo deleted", 404, code);
     }
 
     //Удаление всех репозиториев
@@ -151,5 +156,4 @@ public class TestGit {
                     delete(giturl+"/repos/"+un+"/"+name);
         }
     }
-
 }
