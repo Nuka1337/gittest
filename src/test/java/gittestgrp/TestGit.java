@@ -20,7 +20,8 @@ public class TestGit {
 
     final static String un = "nukagittest";
     final static String giturl = "https://api.github.com";
-    final static String token = "09c53a19"+"0b43b1581"+"c04fd568"+"ff45731"+"5a93678f";
+
+    final static String token = "9acadfa5935ee9d3ca90eaa831493c3d93b368ab"; //Нужно поменять на актуальный из письма
 
     public String generateRepoName() {
         return "Repo" + DateTimeFormatter.ofPattern("HHmmssddMMyyyy").format(LocalDateTime.now()) + "r" + (new Random().nextInt(1000) * new Random().nextInt(1000));
