@@ -4,7 +4,10 @@ import io.restassured.RestAssured;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
+import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.response.Response;
+import org.apache.http.params.CoreConnectionPNames;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,7 +24,7 @@ public class TestGit {
     final static String un = "nukagittest";
     final static String giturl = "https://api.github.com";
 
-    final static String token = "9acadfa5935ee9d3ca90eaa831493c3d93b368ab"; //Нужно поменять на актуальный из письма
+    final static String token = "placeCorectOneFrom"; //Нужно поменять на актуальный из письма
 
     public String generateRepoName() {
         return "Repo" + DateTimeFormatter.ofPattern("HHmmssddMMyyyy").format(LocalDateTime.now()) + "r" + (new Random().nextInt(1000) * new Random().nextInt(1000));
@@ -93,11 +96,15 @@ public class TestGit {
     //Удаление репозитория
     @Test
     public void test5() {
+        RestAssuredConfig newConfig = RestAssured.config()
+                .httpClient(HttpClientConfig.httpClientConfig()
+                        .setParam(CoreConnectionPNames.CONNECTION_TIMEOUT, 1000));
         String reponame = generateRepoName();
         Map<String, String> jsonparams = new HashMap<>();
         jsonparams.put("name", reponame);
         int code = RestAssured.
                 given().
+                config(newConfig).
                 contentType("application/json").
                 accept("application/json").
                 when().
@@ -107,6 +114,7 @@ public class TestGit {
         assertTrue("Repo not created", code == 201);
         int code2 = RestAssured.
                 given().
+                config(newConfig).
                 when().
                 delete(giturl+"/repos/"+un+"/"+reponame).
                 getStatusCode();
